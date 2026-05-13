@@ -1,0 +1,21 @@
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+**/google-services.json
+**/secrets.properties
+
+# Editor/agent metadata — keep out of the public repo
+CLAUDE.md
+.claude/
+.cursorrules
+.aider*
+**/.copilotignore
