@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Bootstrap theme used only while the activity launches. Compose
+      MaterialTheme (see core:designsystem) takes over once setContent runs,
+      so this stays intentionally minimal.
+    -->
+    <style name="Theme.LifeOS.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

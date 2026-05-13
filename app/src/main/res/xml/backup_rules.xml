@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- DataStore preferences are safe to back up. Room DB is excluded -
+         lifestyle/health/financial data should re-sync from cloud, not restore stale. -->
+    <include domain="file" path="datastore/" />
+    <exclude domain="database" path="lifeos.db" />
+</full-backup-content>
