@@ -1,7 +1,6 @@
 package com.luigi.lifeos.core.common.dispatcher
 
 import javax.inject.Qualifier
-import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
  * Qualifier so consumers inject a *specific* dispatcher rather than depending
@@ -16,7 +15,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * ```
  */
 @Qualifier
-@Retention(RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class Dispatcher(val dispatcher: LifeOsDispatcher)
 
 enum class LifeOsDispatcher { Default, IO }

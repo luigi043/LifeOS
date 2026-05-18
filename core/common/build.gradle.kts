@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.lifeos.android.library)
+    alias(libs.plugins.lifeos.android.hilt)
 }
 
 android {

@@ -13,6 +13,7 @@ lifecycleCompose = "2.8.7"
 
 # AndroidX
 coreKtx = "1.15.0"
+coreSplashscreen = "1.0.1"
 appcompat = "1.7.0"
 material = "1.12.0"
 
@@ -20,7 +21,7 @@ material = "1.12.0"
 hilt = "2.52"
 hiltNavigationCompose = "1.2.0"
 hiltWork = "1.2.0"
-room = "2.6.1"
+room = "2.7.0-alpha11"
 workManager = "2.10.0"
 dataStore = "1.1.1"
 
@@ -50,6 +51,7 @@ coroutinesTest = "1.9.0"
 [libraries]
 # Core Kotlin / Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
@@ -117,6 +119,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+hilt-gradle-plugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
