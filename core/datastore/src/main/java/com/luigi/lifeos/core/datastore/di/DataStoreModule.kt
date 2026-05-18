@@ -1,20 +1,12 @@
 package com.luigi.lifeos.core.datastore.di
 
-import android.content.Context
-import com.luigi.lifeos.core.datastore.UserPreferences
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
-
-    @Provides
-    @Singleton
-    fun provideUserPreferences(@ApplicationContext context: Context): UserPreferences =
-        UserPreferences(context)
+    // UserPreferences is provided via @Inject constructor and @Singleton annotation.
+    // Additional DataStore-related providers (like the Proto DataStore instance) would go here.
 }

@@ -5,11 +5,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.luigi.lifeos.feature.analytics.navigation.analyticsScreen
+import com.luigi.lifeos.feature.finance.navigation.addExpenseScreen
 import com.luigi.lifeos.feature.finance.navigation.financeScreen
+import com.luigi.lifeos.feature.finance.navigation.navigateToAddExpense
 import com.luigi.lifeos.feature.grocery.navigation.groceryScreen
 import com.luigi.lifeos.feature.habits.navigation.habitsScreen
 import com.luigi.lifeos.feature.mentalhealth.navigation.mentalHealthScreen
 import com.luigi.lifeos.feature.nutrition.navigation.nutritionScreen
+import com.luigi.lifeos.feature.onboarding.navigation.OnboardingRoute
+import com.luigi.lifeos.feature.onboarding.navigation.onboardingScreen
 import com.luigi.lifeos.feature.profile.navigation.profileScreen
 import com.luigi.lifeos.feature.settings.navigation.settingsScreen
 import com.luigi.lifeos.feature.today.navigation.TodayRoute
@@ -19,9 +23,8 @@ import com.luigi.lifeos.feature.workout.navigation.workoutScreen
 /**
  * Single source of truth for navigation across the app.
  *
- * Each feature module exposes a `*Screen()` `NavGraphBuilder` extension
- * (the standard Now-in-Android pattern). This file *only* composes them —
- * it has zero feature-internal knowledge, which keeps :app decoupled.
+ * Each feature module exposes a `*Screen()` [NavGraphBuilder] extension.
+ * This file composes them — zero feature-internal knowledge in :app.
  */
 @Composable
 fun LifeOsNavHost(
@@ -30,12 +33,29 @@ fun LifeOsNavHost(
     startDestination: String = TodayRoute,
 ) {
     NavHost(
-        navController = navController,
+        navController    = navController,
         startDestination = startDestination,
-        modifier = modifier,
+        modifier         = modifier,
     ) {
+        onboardingScreen(
+            onFinished = {
+                navController.navigate(TodayRoute) {
+                    popUpTo(OnboardingRoute) { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
+        )
+
         todayScreen()
-        financeScreen()
+
+        // Finance — overview + add-expense form
+        financeScreen(
+            onNavigateToAddExpense = { navController.navigateToAddExpense() },
+        )
+        addExpenseScreen(
+            onBack = { navController.popBackStack() },
+        )
+
         workoutScreen()
         nutritionScreen()
         groceryScreen()

@@ -36,6 +36,7 @@ include(":core:network")
 include(":core:datastore")
 
 // Feature modules — one per major domain
+include(":feature:onboarding")
 include(":feature:today")
 include(":feature:finance")
 include(":feature:workout")

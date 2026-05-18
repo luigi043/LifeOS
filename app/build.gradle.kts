@@ -52,6 +52,7 @@ dependencies {
     implementation(project(":core:datastore"))
 
     // Features — :app wires every screen into the nav graph
+    implementation(project(":feature:onboarding"))
     implementation(project(":feature:today"))
     implementation(project(":feature:finance"))
     implementation(project(":feature:workout"))
@@ -83,6 +84,9 @@ dependencies {
 
     // Foundation
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
     implementation(libs.timber)
 
     // Background work + Hilt-Work bridge for @HiltWorker
