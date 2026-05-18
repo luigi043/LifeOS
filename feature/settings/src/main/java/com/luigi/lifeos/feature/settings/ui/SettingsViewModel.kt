@@ -1,25 +1,55 @@
 package com.luigi.lifeos.feature.settings.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.luigi.lifeos.core.datastore.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * SettingsViewModel — currently exposes a static placeholder state.
- * Replace [SettingsUiState] with concrete fields when the feature is implemented.
+ * SettingsViewModel — manages user preferences like theme and currency.
+ * It observes [UserPreferences] from the DataStore and exposes them as [SettingsUiState].
  */
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val userPreferences: UserPreferences,
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        SettingsUiState(tagline = "App settings, themes, notifications, data export."),
+    val state: StateFlow<SettingsUiState> = combine(
+        userPreferences.darkMode,
+        userPreferences.baseCurrency
+    ) { darkMode, currency ->
+        SettingsUiState(
+            darkMode = darkMode ?: false,
+            baseCurrency = currency,
+            tagline = "App settings, themes, notifications, and data export."
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = SettingsUiState(tagline = "App settings, themes, notifications, and data export.")
     )
-    val state: StateFlow<SettingsUiState> = _state.asStateFlow()
+
+    fun onDarkModeChanged(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferences.setDarkMode(enabled)
+        }
+    }
+
+    fun onCurrencyChanged(code: String) {
+        viewModelScope.launch {
+            userPreferences.setBaseCurrency(code)
+        }
+    }
 }
 
 data class SettingsUiState(
-    val tagline: String,
+    val darkMode: Boolean = false,
+    val baseCurrency: String = "EUR",
+    val tagline: String = "",
 )

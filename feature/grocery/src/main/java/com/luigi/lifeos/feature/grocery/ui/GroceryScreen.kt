@@ -34,6 +34,15 @@ fun GroceryScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Grocery", style = MaterialTheme.typography.headlineLarge)
-        Text(state.tagline, style = MaterialTheme.typography.bodyMedium)
+        if (state.isLoading) {
+            Text("Loading…", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            val total = state.pendingEstimatedTotal
+            Text(
+                "${state.pendingItems.size} item(s) pending" +
+                    if (total != null) " · est. €${"%.2f".format(total)}" else "",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }

@@ -34,6 +34,13 @@ fun NutritionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Nutrition", style = MaterialTheme.typography.headlineLarge)
-        Text(state.tagline, style = MaterialTheme.typography.bodyMedium)
+        if (state.isLoading) {
+            Text("Loading…", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            Text(
+                "${state.recipes.size} recipe(s) · tap to manage",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
