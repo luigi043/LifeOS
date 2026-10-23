@@ -41,6 +41,10 @@ android {
     }
 }
 
+ksp {
+    arg("hilt.incremental", "false")
+}
+
 dependencies {
     // Core
     implementation(project(":core:common"))
@@ -88,11 +92,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
     implementation(libs.timber)
-
-    // Background work + Hilt-Work bridge for @HiltWorker
-    implementation(libs.work.runtime.ktx)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
