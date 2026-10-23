@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
  *
  * Cold-start routing: [AppEntryViewModel] resolves `onboardingDone` from
  * DataStore. Until it resolves we keep showing the splash screen — this
- * avoids the "Today screen blinks then onboarding takes over" flash on
+ * avoids the * Today screen blinks then onboarding takes over" flash on
  * first install.
  */
 @AndroidEntryPoint
