@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.luigi.lifeos.feature.today.navigation.TodayRoute
 
 /**
  * Bottom navigation. Single-source-of-truth selection is derived from the
@@ -33,10 +34,16 @@ fun LifeOsBottomBar(
             NavigationBarItem(
                 selected = selected,
                 onClick = {
+                    if (tab.route == TodayRoute) {
+                        // Restoring a saved detail stack here can reopen Finance instead of Today.
+                        navController.popBackStack(TodayRoute, inclusive = false)
+                    } else {
                     navController.navigate(tab.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        // Onboarding is removed after setup, so it cannot remain the pop target.
+                        popUpTo(TodayRoute) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
+                    }
                     }
                 },
                 icon = {
