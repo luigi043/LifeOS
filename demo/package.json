@@ -1,0 +1,7 @@
+{
+  "name": "lifeos-interactive-demo",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test model.test.mjs", "test:browser": "node browser-test.mjs", "start": "node server.mjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

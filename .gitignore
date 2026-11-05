@@ -9,6 +9,9 @@ captures/
 .cxx/
 *.apk
 *.aab
+*.log
+demo/android/
+.vercel/
 *.keystore
 **/google-services.json
 **/secrets.properties

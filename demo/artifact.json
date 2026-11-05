@@ -1,0 +1,11 @@
+{
+  "applicationId": "com.luigi.lifeos.debug",
+  "versionName": "0.1.0",
+  "buildType": "debug",
+  "minSdk": 26,
+  "targetSdk": 35,
+  "bytes": 22179272,
+  "sha256": "6845d05b457c191e7e4c77609ed9cbef717a5f862d401df8e8555fa803785544",
+  "nativeScreenshots": 28,
+  "note": "Debug-signed evaluation build. Personal finance prototype; unfinished modules are labeled. Synthetic verification data is not bundled in the Android app."
+}
