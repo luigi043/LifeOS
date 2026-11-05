@@ -1,0 +1,73 @@
+{
+  "verifiedAt": "2026-11-05T13:39:31.749Z",
+  "nativeDevice": {
+    "kind": "emulator",
+    "api": 35,
+    "resolution": "1080x2340"
+  },
+  "unit": {
+    "total": 10,
+    "failures": 0,
+    "suites": [
+      {
+        "name": "com.luigi.lifeos.core.domain.model.MoneyTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.luigi.lifeos.feature.finance.domain.usecase.BudgetSummaryTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.luigi.lifeos.feature.finance.domain.usecase.MonthRangeTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.luigi.lifeos.feature.finance.ui.AddExpenseViewModelTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.luigi.lifeos.feature.onboarding.ui.OnboardingValidationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "instrumented": {
+    "passed": true,
+    "tests": 1,
+    "androidScreenshots": 28
+  },
+  "browser": {
+    "modelTests": 4,
+    "endToEndPassed": true,
+    "screenshots": 5
+  },
+  "apk": {
+    "bytes": 22179272,
+    "sha256": "6845d05b457c191e7e4c77609ed9cbef717a5f862d401df8e8555fa803785544",
+    "package": "com.luigi.lifeos.debug"
+  },
+  "publicDemo": "https://lifeos-phone-demo.vercel.app",
+  "publicChecks": {
+    "anonymousAccess": true,
+    "defaultView": "phone",
+    "nativeImages": 28,
+    "apkBytes": 22179272,
+    "apkSha256": "6845d05b457c191e7e4c77609ed9cbef717a5f862d401df8e8555fa803785544",
+    "base": "https://lifeos-phone-demo.vercel.app"
+  }
+}
