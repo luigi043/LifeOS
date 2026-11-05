@@ -1,6 +1,9 @@
 package com.luigi.lifeos.feature.finance.ui
 
 import androidx.lifecycle.ViewModel
+import com.luigi.lifeos.core.domain.model.Money
+import com.luigi.lifeos.core.datastore.UserPreferences
+import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.viewModelScope
 import com.luigi.lifeos.core.domain.model.Expense
 import com.luigi.lifeos.core.domain.model.ExpenseCategory
@@ -21,6 +24,7 @@ import java.time.Instant
 import javax.inject.Inject
 
 data class AddExpenseUiState(
+    val currency: String = "EUR",
     val amountText: String = "",
     val note: String = "",
     val selectedCategory: ExpenseCategory? = null,
@@ -35,15 +39,17 @@ data class AddExpenseUiState(
 class AddExpenseViewModel @Inject constructor(
     private val addExpense: AddExpenseUseCase,
     repository: FinanceRepository,
+    preferences: UserPreferences,
 ) : ViewModel() {
 
     private val _form = MutableStateFlow(AddExpenseUiState())
     private val _categories = repository.observeCategories()
 
     val state: StateFlow<AddExpenseUiState> = combine(
-        _form, _categories,
-    ) { form, categories ->
+        _form, _categories, preferences.baseCurrency,
+    ) { form, categories, currency ->
         form.copy(
+            currency = currency,
             categories       = categories,
             selectedCategory = form.selectedCategory ?: categories.firstOrNull(),
         )
@@ -54,10 +60,8 @@ class AddExpenseViewModel @Inject constructor(
     val saveSuccess = _saveSuccess.receiveAsFlow()
 
     fun onAmountChanged(text: String) {
-        // Allow only digits and one decimal separator
-        val filtered = text.filter { it.isDigit() || it == '.' }
-            .let { if (it.count { c -> c == '.' } > 1) _form.value.amountText else it }
-        _form.update { it.copy(amountText = filtered, error = null) }
+        // Invalid input stays visible instead of silently becoming a different amount.
+        _form.update { it.copy(amountText = text, error = null) }
     }
 
     fun onNoteChanged(note: String) = _form.update { it.copy(note = note) }
@@ -71,10 +75,11 @@ class AddExpenseViewModel @Inject constructor(
         _form.update { it.copy(recurringPeriod = period) }
 
     fun onSave() {
-        val current = state.value   // Fix: read merged state so auto-selected category is visible
-        val amount = current.amountText.toDoubleOrNull()
+        if (_form.value.isSaving) return
+        val current = state.value
+        val amount = Money.parseMinorUnits(current.amountText)
         if (amount == null || amount <= 0) {
-            _form.update { it.copy(error = "Enter a valid amount") }
+            _form.update { it.copy(error = "Enter a positive amount with up to two decimal places") }
             return
         }
         val category = current.selectedCategory ?: run {
@@ -84,21 +89,28 @@ class AddExpenseViewModel @Inject constructor(
 
         _form.update { it.copy(isSaving = true, error = null) }
         viewModelScope.launch {
-            val now = Instant.now().toEpochMilli()
-            addExpense(
-                Expense(
-                    amountMinor           = (amount * 100).toLong(),
-                    currency              = "EUR",
-                    categoryId            = category.id,
-                    note                  = current.note.trim(),
-                    isRecurring           = current.isRecurring,
-                    recurringPeriod       = if (current.isRecurring) current.recurringPeriod else null,
-                    dateEpochMillis       = now,
-                    createdAtEpochMillis  = now,
+            try {
+                val now = Instant.now().toEpochMilli()
+                addExpense(
+                    Expense(
+                        amountMinor           = amount,
+                        currency              = current.currency,
+                        categoryId            = category.id,
+                        note                  = current.note.trim(),
+                        isRecurring           = current.isRecurring,
+                        recurringPeriod       = if (current.isRecurring) current.recurringPeriod else null,
+                        dateEpochMillis       = now,
+                        createdAtEpochMillis  = now,
+                    )
                 )
-            )
-            _form.update { it.copy(isSaving = false) }
-            _saveSuccess.send(Unit)
+                _saveSuccess.send(Unit)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                _form.update { it.copy(error = "Could not save the expense. Please try again.") }
+            } finally {
+                _form.update { it.copy(isSaving = false) }
+            }
         }
     }
 }

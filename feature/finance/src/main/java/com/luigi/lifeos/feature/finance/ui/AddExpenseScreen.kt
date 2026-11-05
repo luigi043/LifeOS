@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -79,6 +80,7 @@ fun AddExpenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -90,7 +92,7 @@ fun AddExpenseScreen(
                 onValueChange = viewModel::onAmountChanged,
                 modifier      = Modifier.fillMaxWidth(),
                 placeholder   = { Text("0.00") },
-                prefix        = { Text("€  ", fontWeight = FontWeight.Bold) },
+                prefix        = { Text("${state.currency}  ", fontWeight = FontWeight.Bold) },
                 isError       = state.error != null,
                 supportingText = state.error?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -132,7 +134,7 @@ fun AddExpenseScreen(
                 Column {
                     Text("Recurring", style = MaterialTheme.typography.labelLarge)
                     Text(
-                        "Repeats automatically",
+                        "Recurring label only. Automatic posting is not available.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

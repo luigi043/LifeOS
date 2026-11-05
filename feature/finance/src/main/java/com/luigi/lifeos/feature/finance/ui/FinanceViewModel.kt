@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.YearMonth
 import javax.inject.Inject
+import com.luigi.lifeos.feature.finance.domain.usecase.toEpochMillisRange
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.catch
 
 enum class FinanceTab { EXPENSES, INCOME }
 
@@ -32,6 +35,7 @@ data class FinanceUiState(
     val selectedTab: FinanceTab = FinanceTab.EXPENSES,
     val isLoading: Boolean = true,
     val currency: String = "EUR",
+    val error: String? = null,
 )
 
 @HiltViewModel
@@ -42,12 +46,15 @@ class FinanceViewModel @Inject constructor(
     private val repository: FinanceRepository,
 ) : ViewModel() {
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
     private val _selectedTab = MutableStateFlow(FinanceTab.EXPENSES)
 
     val state: StateFlow<FinanceUiState> = combine(
         getBudgetSummary(YearMonth.now()),
         getExpenses(YearMonth.now()),
-        repository.observeIncome(),
+        repository.observeIncomeByPeriod(YearMonth.now().toEpochMillisRange().first, YearMonth.now().toEpochMillisRange().second),
         repository.observeCategories(),
         _selectedTab,
     ) { budgetSummary, expenses, income, categories, tab ->
@@ -60,6 +67,9 @@ class FinanceViewModel @Inject constructor(
             isLoading     = false,
             currency      = budgetSummary.currency,
         )
+    }.catch { e ->
+        if (e is CancellationException) throw e
+        emit(FinanceUiState(isLoading = false, error = "Could not load finance data. Reopen this screen to retry."))
     }.stateIn(
         scope        = viewModelScope,
         started      = SharingStarted.WhileSubscribed(5_000),
@@ -71,11 +81,19 @@ class FinanceViewModel @Inject constructor(
     }
 
     fun onDeleteExpense(expense: Expense) {
-        viewModelScope.launch { deleteExpense(expense) }
+        viewModelScope.launch {
+            try { deleteExpense(expense); _error.value = null }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { _error.value = "Could not delete the expense. Please try again." }
+        }
     }
 
     init {
         // Seed default expense categories on first launch (idempotent)
-        viewModelScope.launch { repository.seedDefaultCategoriesIfNeeded() }
+        viewModelScope.launch {
+            try { repository.seedDefaultCategoriesIfNeeded() }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { _error.value = "Could not load categories. Reopen Finance to retry." }
+        }
     }
 }

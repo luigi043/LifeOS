@@ -16,6 +16,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -58,6 +65,15 @@ fun FinanceScreen(
     viewModel: FinanceViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val actionError by viewModel.error.collectAsState()
+    var pendingDelete by remember { mutableStateOf<Expense?>(null) }
+    pendingDelete?.let { expense ->
+        AlertDialog(onDismissRequest = { pendingDelete = null },
+            title = { Text("Delete expense?") },
+            text = { Text("This removes the saved expense from this device.") },
+            confirmButton = { TextButton(onClick = { viewModel.onDeleteExpense(expense); pendingDelete = null }) { Text("Delete") } },
+            dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("Cancel") } })
+    }
 
     Scaffold(
         topBar = {
@@ -81,6 +97,7 @@ fun FinanceScreen(
             modifier            = Modifier.fillMaxSize().padding(padding),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
+            item { (actionError ?: state.error)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp)) } }
             item {
                 BudgetCard(
                     summary  = state.budgetSummary,
@@ -112,8 +129,8 @@ fun FinanceScreen(
                             ExpenseItem(
                                 expense  = expense,
                                 category = state.categories.find { it.id == expense.categoryId },
-                                currency = state.currency,
-                                onDelete = { viewModel.onDeleteExpense(expense) },
+                                currency = expense.currency,
+                                onDelete = { pendingDelete = expense },
                             )
                             HorizontalDivider(modifier = Modifier.padding(start = 64.dp))
                         }
@@ -122,10 +139,10 @@ fun FinanceScreen(
 
                 FinanceTab.INCOME -> {
                     if (state.income.isEmpty()) {
-                        item { EmptyState("No income logged yet.") }
+                        item { EmptyState("No income logged this month. Income entry is in development.") }
                     } else {
                         items(state.income, key = { it.id }) { income ->
-                            IncomeItem(income = income, currency = state.currency)
+                            IncomeItem(income = income, currency = income.currency)
                             HorizontalDivider(modifier = Modifier.padding(start = 64.dp))
                         }
                     }
@@ -150,6 +167,7 @@ private fun BudgetCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            Text("Totals in $currency only. Other currencies are listed separately.", style = MaterialTheme.typography.bodySmall)
             Text(
                 "This Month",
                 style = MaterialTheme.typography.labelMedium,
@@ -176,7 +194,7 @@ private fun BudgetCard(
                 ) {
                     Column {
                         Text(
-                            formatMoney(summary.remainingMinor.coerceAtLeast(0L), currency),
+                            formatMoney(if (overBudget) -summary.remainingMinor else summary.remainingMinor, currency),
                             style      = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                             color      = if (overBudget) MaterialTheme.colorScheme.error
@@ -274,6 +292,9 @@ private fun ExpenseItem(
             fontWeight = FontWeight.SemiBold,
             color      = MaterialTheme.colorScheme.error,
         )
+        IconButton(onClick = onDelete) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete expense " + expense.note.ifBlank { category?.name ?: "Unknown" })
+        }
     }
 }
 

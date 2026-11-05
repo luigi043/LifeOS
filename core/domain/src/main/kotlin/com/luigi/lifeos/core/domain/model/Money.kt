@@ -1,6 +1,8 @@
 package com.luigi.lifeos.core.domain.model
 
 import kotlinx.serialization.Serializable
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 /**
  * Money is stored as integer minor-units (cents) to avoid floating-point error.
@@ -18,7 +20,22 @@ value class Money(val minorUnits: Long) {
 
     companion object {
         val Zero = Money(0)
-        fun fromMajor(amount: Double) = Money((amount * 100).toLong())
+        fun fromMajor(amount: Double): Money {
+            require(amount.isFinite()) { "Amount must be finite" }
+            return Money(BigDecimal.valueOf(amount).movePointRight(2)
+                .setScale(0, RoundingMode.HALF_UP).longValueExact())
+        }
+
+        /** Exact input parser for the supported two-decimal currencies. No grouping separators. */
+        fun parseMinorUnits(text: String): Long? {
+            val normalized = text.trim().replace(',', '.')
+            if (!Regex("[0-9]+(?:\\.[0-9]{1,2})?").matches(normalized)) return null
+            return try {
+                BigDecimal(normalized).movePointRight(2).longValueExact()
+            } catch (_: ArithmeticException) {
+                null
+            }
+        }
     }
 }
 

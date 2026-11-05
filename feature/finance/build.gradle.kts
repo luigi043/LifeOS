@@ -10,3 +10,9 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:datastore"))
 }
+
+dependencies {
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+}

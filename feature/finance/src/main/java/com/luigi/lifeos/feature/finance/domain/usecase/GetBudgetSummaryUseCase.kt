@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.YearMonth
 import javax.inject.Inject
+import com.luigi.lifeos.core.datastore.UserPreferences
+import com.luigi.lifeos.core.domain.repository.UserProfileRepository
 
 /**
  * Combines the active [Budget] with this month's expenses to produce a
@@ -17,6 +19,8 @@ import javax.inject.Inject
  */
 class GetBudgetSummaryUseCase @Inject constructor(
     private val repository: FinanceRepository,
+    private val preferences: UserPreferences,
+    private val profiles: UserProfileRepository,
 ) {
     operator fun invoke(yearMonth: YearMonth = YearMonth.now()): Flow<BudgetSummary> {
         val (from, to) = yearMonth.toEpochMillisRange()
@@ -25,11 +29,14 @@ class GetBudgetSummaryUseCase @Inject constructor(
             repository.observeBudgetForPeriod(from, to),
             repository.observeExpensesByPeriod(from, to),
             repository.observeCategories(),
-        ) { budget, expenses, categories ->
+            preferences.baseCurrency,
+            profiles.observe(),
+        ) { budget, allExpenses, categories, currency, profile ->
+            val expenses = allExpenses.filter { it.currency == currency }
 
             val totalSpent = expenses.sumOf { it.amountMinor }
-            val currency   = budget?.currency ?: "EUR"
-            val limit      = budget?.limitMinor ?: 0L
+            val limit = budget?.takeIf { it.currency == currency }?.limitMinor
+                ?: profile?.takeIf { it.preferredCurrency == currency }?.monthlyBudgetMinor ?: 0L
 
             val categoryMap: Map<Long, ExpenseCategory> = categories.associateBy { it.id }
 

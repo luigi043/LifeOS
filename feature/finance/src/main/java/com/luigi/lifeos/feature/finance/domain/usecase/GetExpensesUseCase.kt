@@ -4,7 +4,7 @@ import com.luigi.lifeos.core.domain.model.Expense
 import com.luigi.lifeos.core.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
-import java.time.ZoneOffset
+import java.time.ZoneId
 import javax.inject.Inject
 
 /**
@@ -23,8 +23,8 @@ class GetExpensesUseCase @Inject constructor(
     fun all(): Flow<List<Expense>> = repository.observeExpenses()
 }
 
-internal fun YearMonth.toEpochMillisRange(): Pair<Long, Long> {
-    val start = atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
-    val end   = atEndOfMonth().atTime(23, 59, 59).toInstant(ZoneOffset.UTC).toEpochMilli()
+internal fun YearMonth.toEpochMillisRange(zone: ZoneId = ZoneId.systemDefault()): Pair<Long, Long> {
+    val start = atDay(1).atStartOfDay(zone).toInstant().toEpochMilli()
+    val end = plusMonths(1).atDay(1).atStartOfDay(zone).toInstant().toEpochMilli() - 1
     return start to end
 }
