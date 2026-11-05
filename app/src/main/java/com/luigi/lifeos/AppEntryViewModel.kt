@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +25,8 @@ import javax.inject.Inject
 class AppEntryViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
+
+    val darkMode = userPreferences.darkMode.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _entryState = MutableStateFlow<EntryState>(EntryState.Loading)
     val entryState: StateFlow<EntryState> = _entryState.asStateFlow()

@@ -1,11 +1,13 @@
 package com.luigi.lifeos
 
 import android.os.Bundle
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -41,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Hold the system splash until we know which start destination to use.
-        val splash = androidx.core.splashscreen.SplashScreen.installSplashScreen(this)
+        val splash = installSplashScreen()
         splash.setKeepOnScreenCondition { entryViewModel.entryState.value is EntryState.Loading }
 
         enableEdgeToEdge(
@@ -51,7 +53,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            LifeOsTheme {
+            val darkMode by entryViewModel.darkMode.collectAsState()
+            LifeOsTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val entry by entryViewModel.entryState.collectAsState()
                     when (val s = entry) {
