@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,7 @@ import com.luigi.lifeos.core.designsystem.component.LifeOsCard
  *   for now — wire to real repositories once features port over.
  */
 @Composable
-fun TodayScreen(viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(onNavigate: (String) -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
 
     Column(
@@ -52,20 +53,6 @@ fun TodayScreen(viewModel: TodayViewModel = hiltViewModel()) {
         )
         Spacer(Modifier.height(8.dp))
 
-        // Headline tile — Stability Score (cross-system metric from :core:domain)
-        LifeOsCard(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                Text("Stability Score", style = MaterialTheme.typography.labelLarge)
-                Text(
-                    text = "${state.stabilityScore}%",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(state.stabilityHint, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-
         // Two-up tiles
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TodayTile("Budget left", state.budgetRemaining, Modifier.weight(1f))
@@ -75,6 +62,28 @@ fun TodayScreen(viewModel: TodayViewModel = hiltViewModel()) {
             TodayTile("Workout", state.workoutName, Modifier.weight(1f))
             TodayTile("Hydration", state.hydration, Modifier.weight(1f))
         }
+
+        // Headline tile — Stability Score (cross-system metric from :core:domain)
+        LifeOsCard(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                Text("Lifestyle tracking", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = "In development",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(state.stabilityHint, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        Text("Explore LifeOS", style = MaterialTheme.typography.titleLarge)
+        listOf("Finance" to "finance", "Nutrition" to "nutrition", "Workout" to "workout",
+            "Grocery" to "grocery", "Mental wellness" to "mentalhealth", "Habits" to "habits",
+            "Analytics" to "analytics", "Settings" to "settings").forEach { (label, route) ->
+            OutlinedButton(onClick = { onNavigate(route) }, modifier = Modifier.fillMaxWidth()) { Text(label) }
+        }
+
     }
 }
 

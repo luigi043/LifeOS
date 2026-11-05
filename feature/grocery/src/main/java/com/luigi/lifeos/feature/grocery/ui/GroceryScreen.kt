@@ -37,6 +37,7 @@ fun GroceryScreen(
         if (state.isLoading) {
             Text("Loading…", style = MaterialTheme.typography.bodyMedium)
         } else {
+            Text("Grocery editing is in development.", style = MaterialTheme.typography.bodyMedium)
             val total = state.pendingEstimatedTotal
             Text(
                 "${state.pendingItems.size} item(s) pending" +

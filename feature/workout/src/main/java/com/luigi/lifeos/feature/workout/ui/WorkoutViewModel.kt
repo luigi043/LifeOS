@@ -15,7 +15,7 @@ import javax.inject.Inject
 class WorkoutViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(
-        WorkoutUiState(tagline = "Exercise tracking, plans, timers, progress, muscle targeting."),
+        WorkoutUiState(tagline = "Workout planning and exercise logging are in development. No workouts are recorded yet."),
     )
     val state: StateFlow<WorkoutUiState> = _state.asStateFlow()
 }

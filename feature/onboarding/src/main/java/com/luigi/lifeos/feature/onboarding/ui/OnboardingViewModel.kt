@@ -1,5 +1,7 @@
 package com.luigi.lifeos.feature.onboarding.ui
 
+import com.luigi.lifeos.core.domain.model.Money
+import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.luigi.lifeos.core.datastore.UserPreferences
@@ -41,7 +43,7 @@ class OnboardingViewModel @Inject constructor(
     // ---- Field updates ----
 
     fun onDisplayNameChange(value: String) = _state.update { it.copy(displayName = value) }
-    fun onAgeChange(value: String) = _state.update { it.copy(ageText = value.filter { c -> c.isDigit() }) }
+    fun onAgeChange(value: String) = _state.update { it.copy(ageText = value) }
     fun onHeightChange(value: String) = _state.update { it.copy(heightCmText = value.filterNumeric()) }
     fun onWeightChange(value: String) = _state.update { it.copy(weightKgText = value.filterNumeric()) }
     fun onGoalWeightChange(value: String) = _state.update { it.copy(goalWeightKgText = value.filterNumeric()) }
@@ -98,17 +100,18 @@ class OnboardingViewModel @Inject constructor(
                 )
                 userProfileRepository.save(profile)
                 // Flip the flag LAST — see kdoc.
-                userPreferences.markOnboardingDone()
                 if (s.currency.isNotBlank()) {
                     userPreferences.setBaseCurrency(s.currency)
                 }
+                userPreferences.markOnboardingDone()
             }.fold(
                 onSuccess = {
                     _state.update { it.copy(isSaving = false) }
                     _events.value = OnboardingEvent.Finished
                 },
                 onFailure = { e ->
-                    _state.update { it.copy(isSaving = false, error = e.message ?: "Couldn't save profile.") }
+                    if (e is CancellationException) throw e
+                    _state.update { it.copy(isSaving = false, error = "Could not save your profile. Please try again.") }
                 },
             )
         }
@@ -121,8 +124,8 @@ sealed interface OnboardingEvent {
 }
 
 private fun String.filterNumeric(): String =
-    filter { it.isDigit() || it == '.' || it == ',' }.replace(',', '.')
+    replace(',', '.')
 
 /** Parse a major-units string (e.g. "1200.50") into integer minor units. */
 private fun String.toMinorUnitsOrNull(): Long? =
-    toDoubleOrNull()?.let { (it * 100).toLong() }
+    Money.parseMinorUnits(this)

@@ -46,7 +46,7 @@ fun LifeOsNavHost(
             },
         )
 
-        todayScreen()
+        todayScreen(onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } })
 
         // Finance — overview + add-expense form
         financeScreen(

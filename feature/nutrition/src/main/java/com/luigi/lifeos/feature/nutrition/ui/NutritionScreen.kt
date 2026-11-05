@@ -38,7 +38,7 @@ fun NutritionScreen(
             Text("Loading…", style = MaterialTheme.typography.bodyMedium)
         } else {
             Text(
-                "${state.recipes.size} recipe(s) · tap to manage",
+                "${state.recipes.size} saved recipes. Recipe management is in development.",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }

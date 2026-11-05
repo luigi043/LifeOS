@@ -11,8 +11,8 @@ import com.luigi.lifeos.feature.today.ui.TodayScreen
  */
 const val TodayRoute = "today"
 
-fun NavGraphBuilder.todayScreen() {
+fun NavGraphBuilder.todayScreen(onNavigate: (String) -> Unit) {
     composable(route = TodayRoute) {
-        TodayScreen()
+        TodayScreen(onNavigate = onNavigate)
     }
 }

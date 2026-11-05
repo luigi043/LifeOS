@@ -15,7 +15,7 @@ import javax.inject.Inject
 class AnalyticsViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(
-        AnalyticsUiState(tagline = "Insights across systems — correlations, trends, AI insights."),
+        AnalyticsUiState(tagline = "Analytics are in development. No trends or AI insights are calculated yet."),
     )
     val state: StateFlow<AnalyticsUiState> = _state.asStateFlow()
 }

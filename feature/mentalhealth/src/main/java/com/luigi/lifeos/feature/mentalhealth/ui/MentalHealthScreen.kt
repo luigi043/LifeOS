@@ -33,7 +33,7 @@ fun MentalHealthScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("MentalHealth", style = MaterialTheme.typography.headlineLarge)
+        Text("Mental wellness", style = MaterialTheme.typography.headlineLarge)
         Text(state.tagline, style = MaterialTheme.typography.bodyMedium)
     }
 }

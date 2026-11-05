@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * SettingsViewModel — manages user preferences like theme and currency.
@@ -20,13 +22,17 @@ class SettingsViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
+    private val error = MutableStateFlow<String?>(null)
+
     val state: StateFlow<SettingsUiState> = combine(
         userPreferences.darkMode,
-        userPreferences.baseCurrency
-    ) { darkMode, currency ->
+        userPreferences.baseCurrency,
+        error,
+    ) { darkMode, currency, error ->
         SettingsUiState(
             darkMode = darkMode ?: false,
             baseCurrency = currency,
+            error = error,
             tagline = "App settings, themes, notifications, and data export."
         )
     }.stateIn(
@@ -37,18 +43,24 @@ class SettingsViewModel @Inject constructor(
 
     fun onDarkModeChanged(enabled: Boolean) {
         viewModelScope.launch {
-            userPreferences.setDarkMode(enabled)
+            savePreference { userPreferences.setDarkMode(enabled) }
         }
     }
 
     fun onCurrencyChanged(code: String) {
         viewModelScope.launch {
-            userPreferences.setBaseCurrency(code)
+            savePreference { userPreferences.setBaseCurrency(code) }
         }
+    }
+    private suspend fun savePreference(action: suspend () -> Unit) {
+        try { action(); error.value = null }
+        catch (e: CancellationException) { throw e }
+        catch (_: Exception) { error.value = "Could not save preferences. Please try again." }
     }
 }
 
 data class SettingsUiState(
+    val error: String? = null,
     val darkMode: Boolean = false,
     val baseCurrency: String = "EUR",
     val tagline: String = "",

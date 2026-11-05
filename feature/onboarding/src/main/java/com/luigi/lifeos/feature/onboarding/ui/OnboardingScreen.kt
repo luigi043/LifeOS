@@ -21,6 +21,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,7 +68,7 @@ fun OnboardingScreen(
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().imePadding()) {
             // Step progress
             LinearProgressIndicator(
                 progress = { state.progressFraction },
@@ -85,16 +88,16 @@ fun OnboardingScreen(
             ) {
                 Box(modifier = Modifier.weight(1f)) {
                     when (state.step) {
-                        OnboardingStep.WELCOME -> WelcomeStep()
-                        OnboardingStep.PROFILE -> ProfileStep(state, viewModel)
-                        OnboardingStep.BODY -> BodyStep(state, viewModel)
-                        OnboardingStep.GOALS -> GoalsStep(state, viewModel)
-                        OnboardingStep.BUDGET -> BudgetStep(state, viewModel)
+                        OnboardingStep.WELCOME -> Column(Modifier.verticalScroll(rememberScrollState())) { WelcomeStep() }
+                        OnboardingStep.PROFILE -> Column(Modifier.verticalScroll(rememberScrollState())) { ProfileStep(state, viewModel) }
+                        OnboardingStep.BODY -> Column(Modifier.verticalScroll(rememberScrollState())) { BodyStep(state, viewModel) }
+                        OnboardingStep.GOALS -> Column(Modifier.verticalScroll(rememberScrollState())) { GoalsStep(state, viewModel) }
+                        OnboardingStep.BUDGET -> Column(Modifier.verticalScroll(rememberScrollState())) { BudgetStep(state, viewModel) }
                         OnboardingStep.REVIEW -> ReviewStep(state)
                     }
                 }
 
-                state.error?.let { msg ->
+                (state.error ?: state.validationMessage)?.let { msg ->
                     Text(
                         msg,
                         style = MaterialTheme.typography.bodyMedium,
@@ -103,7 +106,7 @@ fun OnboardingScreen(
                 }
 
                 NavRow(
-                    canBack = state.step != OnboardingStep.WELCOME,
+                    canBack = state.step != OnboardingStep.WELCOME && !state.isSaving,
                     canAdvance = state.canAdvance && !state.isSaving,
                     isSaving = state.isSaving,
                     isFinalStep = state.step == OnboardingStep.REVIEW,
@@ -155,7 +158,7 @@ private fun WelcomeStep() {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.lg)) {
         LifeOsSectionHeader(
             title = "Welcome to LifeOS",
-            subtitle = "One place for your money, meals, workouts, and mood. Let's set you up — takes about 90 seconds.",
+            subtitle = "Set up your local profile and start tracking expenses. Other lifestyle modules are in development.",
         )
         Spacer(Modifier.height(Spacing.md))
         LifeOsCard(modifier = Modifier.fillMaxWidth()) {
@@ -163,7 +166,7 @@ private fun WelcomeStep() {
                 Text("What you'll do today:", fontWeight = FontWeight.SemiBold)
                 BulletLine("Tell us a bit about you.")
                 BulletLine("Pick a fitness goal and dietary preference.")
-                BulletLine("Set a starting budget — you can change it later.")
+                BulletLine("Save your starting budget preferences.")
             }
         }
     }
@@ -195,7 +198,7 @@ private fun BodyStep(state: OnboardingUiState, vm: OnboardingViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.lg)) {
         LifeOsSectionHeader(
             title = "Your body",
-            subtitle = "All fields are optional — only used for calorie + weight targets.",
+            subtitle = "Optional profile details. Enter positive numbers or leave blank. Targets are not calculated yet.",
         )
         LifeOsTextField(
             value = state.heightCmText,
@@ -223,7 +226,7 @@ private fun GoalsStep(state: OnboardingUiState, vm: OnboardingViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.lg)) {
         LifeOsSectionHeader(
             title = "Your goals",
-            subtitle = "Pick what matters most right now — you can change this later.",
+            subtitle = "Save your preferences for future planning features.",
         )
         ChipGroup(
             label = "Fitness goal",
@@ -254,7 +257,7 @@ private fun BudgetStep(state: OnboardingUiState, vm: OnboardingViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.lg)) {
         LifeOsSectionHeader(
             title = "Your budget",
-            subtitle = "Starting numbers only — LifeOS will adapt these as you log spending.",
+            subtitle = "Optional preferences. Use up to two decimal places. Food budget must not exceed the monthly budget.",
         )
         LifeOsTextField(
             value = state.monthlyBudgetText,
@@ -268,7 +271,7 @@ private fun BudgetStep(state: OnboardingUiState, vm: OnboardingViewModel) {
             onValueChange = vm::onFoodBudgetChange,
             label = "Food budget",
             keyboardType = KeyboardType.Decimal,
-            supportingText = "Used for meal planning + grocery warnings.",
+            supportingText = "Saved to your profile. Grocery warnings are not available yet.",
         )
         ChipGroup(
             label = "Currency",
@@ -289,7 +292,7 @@ private fun ReviewStep(state: OnboardingUiState) {
         item {
             LifeOsSectionHeader(
                 title = "All set?",
-                subtitle = "We'll save this to your device. Nothing leaves the phone.",
+                subtitle = "Saved locally on this device. Android backup follows your device settings.",
             )
         }
         item { ReviewLine("Name", state.displayName.ifBlank { "—" }) }

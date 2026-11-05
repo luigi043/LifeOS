@@ -15,7 +15,7 @@ import javax.inject.Inject
 class HabitsViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(
-        HabitsUiState(tagline = "Habit tracking, streaks, consistency."),
+        HabitsUiState(tagline = "Habit tracking is in development. No streaks are calculated yet."),
     )
     val state: StateFlow<HabitsUiState> = _state.asStateFlow()
 }

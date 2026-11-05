@@ -15,7 +15,7 @@ import javax.inject.Inject
 class MentalHealthViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(
-        MentalHealthUiState(tagline = "Mood, journaling, stability scoring, burnout detection."),
+        MentalHealthUiState(tagline = "Mood logging and journaling are in development. No health assessments are provided."),
     )
     val state: StateFlow<MentalHealthUiState> = _state.asStateFlow()
 }
